@@ -349,12 +349,19 @@
                 
                 convertApi(code || url).then(response => {
                     if (params.get('format') === 'json') {
+                        // Set proper JSON content type
+                        document.body.innerHTML = '';  // Clear existing content
+                        document.body.style.padding = '0';  // Remove padding
+                        
                         // If data_only is true, return just the data
                         if (params.get('data_only') === 'true') {
-                            document.body.innerHTML = `<pre>${JSON.stringify(response.data, null, 2)}</pre>`;
+                            document.write(JSON.stringify(response.data, null, 2));
                         } else {
-                            document.body.innerHTML = `<pre>${JSON.stringify(response, null, 2)}</pre>`;
+                            document.write(JSON.stringify(response, null, 2));
                         }
+                        
+                        // Set content type header via meta tag
+                        document.head.innerHTML = '<meta http-equiv="Content-Type" content="application/json; charset=utf-8">';
                     }
                 });
             }
