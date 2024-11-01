@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ONS API Converter | Economics Observatory</title>
+    <style>
+        /* ECO colors from styleguide */
+        :root {
+            --eco-dot: #F4134D;
+            --eco-bg: #122B39;
+            --eco-gray: #676A86;
+            --eco-turquoise: #36B7B4;
+        }
+
+        body {
+            margin: 0;
+            padding: 40px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: var(--eco-bg);
+            font-family: 'Work Sans', sans-serif;
+            color: white;
+            box-sizing: border-box;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            margin: 20px auto;
+            text-align: center;
+        }
+
+        .logo {
+            margin-bottom: 20px;
+        }
+
+        .input-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        input {
+            width: 100%;
+            max-width: 600px;
+            padding: 12px;
+            margin: 10px 0;
+            border: 2px solid var(--eco-turquoise);
+            border-radius: 4px;
+            background: transparent;
+            color: white;
+            font-size: 16px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--eco-dot);
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            display: none;
+        }
+
+        .title {
+            color: white;
+            margin-bottom: 10px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .api-url {
+            color: var(--eco-turquoise);
+            word-break: break-all;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+            transition: background-color 0.2s;
+        }
+
+        .api-url:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .api-url::after {
+            content: 'Click to copy';
+            position: absolute;
+            top: -20px;
+            right: 0;
+            font-size: 12px;
+            color: white;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .api-url:hover::after {
+            opacity: 1;
+        }
+
+        .api-url.copied::after {
+            content: 'Copied!';
+            color: var(--eco-turquoise);
+        }
+
+        #dataPreview {
+            max-height: 300px;
+            overflow-y: auto;
+            text-align: left;
+            font-family: monospace;
+            font-size: 14px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        .tutorial {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: left;
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        .tutorial h3 {
+            color: var(--eco-turquoise);
+            margin-bottom: 15px;
+        }
+
+        .tutorial code {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            color: var(--eco-turquoise);
+        }
+
+        .tutorial a {
+            color: var(--eco-turquoise);
+            text-decoration: none;
+        }
+
+        .tutorial a:hover {
+            color: var(--eco-dot);
+        }
+
+        footer {
+            margin-top: auto;
+            padding: 20px;
+            color: var(--eco-gray);
+            font-size: 14px;
+            text-align: center;
+        }
+
+        footer a {
+            color: var(--eco-turquoise);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            color: var(--eco-dot);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <img src="https://raw.githubusercontent.com/EconomicsObservatory/ECOvisualisations/main/guidelines/logos/eco-logo-dark.png" 
+                 alt="Economics Observatory" 
+                 height="80"
+                 style="cursor: pointer"
+                 onclick="window.location.href = window.location.pathname">
+        </div>
+        
+        <div class="input-box">
+            <h2>ONS API Converter</h2>
+            <input type="text" 
+                   id="input" 
+                   placeholder="Enter CDID code or legacy URL (e.g. d7g7 or full URL)"
+                   autocomplete="off">
+            
+            <div class="result" id="result">
+                <div class="title" id="datasetTitle"></div>
+                <div class="api-url" id="newUrl"></div>
+                <div id="dataPreview"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tutorial">
+        <h3>How to use</h3>
+        <p>This tool converts between the legacy ONS API format and the new beta API format. You can:</p>
+        <ul>
+            <li>Enter a 4-letter CDID code, for example:
+                <ul>
+                    <li><a href="?code=d7g7">d7g7</a> - CPI Annual Rate</li>
+                    <li><a href="?code=l55o">l55o</a> - GDP Quarter on Quarter Growth</li>
+                    <li><a href="?code=mgsx">mgsx</a> - Unemployment Rate</li>
+                    <li><a href="?code=lf24">lf24</a> - Employment Rate</li>
+                    <li><a href="?code=ihyq">ihyq</a> - GDP Chained Volume Measure</li>
+                </ul>
+            </li>
+            <li>Or paste a legacy URL (e.g., <a href="?url=https://api.ons.gov.uk/timeseries/d7g7/dataset/mm23/data">https://api.ons.gov.uk/timeseries/d7g7/dataset/mm23/data</a>)</li>
+        </ul>
+
+        <h3>API Usage</h3>
+        <p>You can also use this as an API endpoint:</p>
+        <ul>
+            <li>Using CDID: <a href="?code=d7g7&format=json">?code=d7g7&format=json</a></li>
+            <li>Using URL: <a href="?url=https://api.ons.gov.uk/timeseries/d7g7/dataset/mm23/data&format=json">?url=...&format=json</a></li>
+        </ul>
+    </div>
+
+    <footer>
+        <p>Built by <a href="https://www.economicsobservatory.com">Economics Observatory</a> | 
+           <a href="https://github.com/EconomicsObservatory">GitHub</a> |
+           Data from <a href="https://www.ons.gov.uk/">ONS</a></p>
+    </footer>
+
+    <script>
+        const input = document.getElementById('input');
+        const result = document.getElementById('result');
+        const datasetTitle = document.getElementById('datasetTitle');
+        const newUrl = document.getElementById('newUrl');
+        const dataPreview = document.getElementById('dataPreview');
+
+        async function convertApi(value) {
+            // Extract CDID from input - updated regex to handle full URLs
+            const cdid = value.match(/timeseries\/([a-zA-Z0-9]{4})\/dataset/i)?.[1]?.toLowerCase() || value.match(/^[a-zA-Z0-9]{4}$/i)?.[0]?.toLowerCase();
+            if (!cdid) {
+                result.style.display = 'block';
+                datasetTitle.textContent = 'Error';
+                newUrl.textContent = 'Please enter a valid CDID code or ONS URL';
+                dataPreview.textContent = '';
+                return;
+            }
+
+            try {
+                // First search for the timeseries
+                const searchUrl = `https://api.beta.ons.gov.uk/v1/search?content_type=timeseries&cdids=${cdid}`;
+                const searchResponse = await fetch(searchUrl);
+                const searchData = await searchResponse.json();
+
+                if (!searchData.items?.length) {
+                    throw new Error('Timeseries not found');
+                }
+
+                const item = searchData.items[0];
+                const uri = item.uri;
+
+                // Fetch the actual data
+                const dataUrl = `https://api.beta.ons.gov.uk/v1/data?uri=${uri}`;
+                const dataResponse = await fetch(dataUrl);
+                const data = await dataResponse.json();
+
+                // Show results
+                result.style.display = 'block';
+                datasetTitle.textContent = data.description.title;
+                newUrl.textContent = dataUrl;
+                dataPreview.textContent = JSON.stringify(data, null, 2);
+
+                // Return API response format
+                return {
+                    success: true,
+                    legacy_url: `https://api.ons.gov.uk/timeseries/${cdid}/dataset/mm23/data`,
+                    new_url: dataUrl,
+                    title: data.description.title,
+                    data: data
+                };
+            } catch (error) {
+                result.style.display = 'block';
+                datasetTitle.textContent = 'Error';
+                newUrl.textContent = error.message;
+                dataPreview.textContent = '';
+                
+                return {
+                    success: false,
+                    error: error.message
+                };
+            }
+        }
+
+        // Handle input changes with immediate trigger
+        input.addEventListener('input', (e) => {
+            convertApi(e.target.value);
+        });
+
+        // Handle API endpoint requests
+        if (window.location.search) {
+            const params = new URLSearchParams(window.location.search);
+            const code = params.get('code');
+            const url = params.get('url');
+            
+            if (code || url) {
+                // Fill in the input box
+                input.value = code || url;
+                
+                convertApi(code || url).then(response => {
+                    if (params.get('format') === 'json') {
+                        document.body.innerHTML = `<pre>${JSON.stringify(response, null, 2)}</pre>`;
+                    }
+                });
+            }
+        }
+
+        // Add click-to-copy functionality
+        newUrl.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(newUrl.textContent);
+                newUrl.classList.add('copied');
+                setTimeout(() => {
+                    newUrl.classList.remove('copied');
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy:', err);
+            }
+        });
+    </script>
+</body>
+</html>
