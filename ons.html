@@ -353,15 +353,16 @@
                         document.body.innerHTML = '';
                         document.body.style.padding = '0';
                         
-                        // Create a Blob with the JSON data
+                        // Get the data to return
                         const jsonData = params.get('data_only') === 'true' ? response.data : response;
-                        const blob = new Blob([JSON.stringify(jsonData, null, 2)], {
-                            type: 'application/json'
-                        });
                         
-                        // Create object URL and redirect
-                        const url = URL.createObjectURL(blob);
-                        window.location.href = url;
+                        // Set content type and return JSON
+                        document.head.innerHTML = '';  // Clear head
+                        document.body.style.whiteSpace = 'pre';  // Preserve formatting
+                        document.body.textContent = JSON.stringify(jsonData, null, 2);
+                        
+                        // Force content type to application/json
+                        document.contentType = 'application/json';
                     }
                 });
             }
