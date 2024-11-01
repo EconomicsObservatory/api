@@ -218,11 +218,48 @@
             <li>Or paste a legacy URL (e.g., <a href="?url=https://api.ons.gov.uk/timeseries/d7g7/dataset/mm23/data">https://api.ons.gov.uk/timeseries/d7g7/dataset/mm23/data</a>)</li>
         </ul>
 
-        <h3>API Usage</h3>
-        <p>You can also use this as an API endpoint:</p>
+        <h3>API Endpoint</h3>
+        <p>Example API calls:</p>
         <ul>
             <li>Using CDID: <a href="?code=d7g7&format=json">?code=d7g7&format=json</a></li>
             <li>Using URL: <a href="?url=https://api.ons.gov.uk/timeseries/d7g7/dataset/mm23/data&format=json">?url=...&format=json</a></li>
+            <li>Data only (CDID): <a href="?code=d7g7&format=json&data_only=true">?code=d7g7&format=json&data_only=true</a></li>
+            <li>Data only (URL): <a href="?url=https://api.ons.gov.uk/timeseries/d7g7/dataset/mm23/data&format=json&data_only=true">?url=...&format=json&data_only=true</a></li>
+        </ul>
+
+        <h3>Documentation</h3>
+        <p>The tool can be used programmatically with the following endpoints:</p>
+        <ul>
+            <li>Web Interface:
+                <code><a href="?code=d7g7">?code=d7g7</a></code> or <code><a href="?url=https://api.ons.gov.uk/timeseries/d7g7/dataset/mm23/data">?url=https://api.ons.gov.uk/timeseries/d7g7/dataset/mm23/data</a></code>
+                <br>Returns the HTML interface with results
+            </li><br>
+            <li>Full JSON Response:
+                <code><a href="?code=d7g7&format=json">?code=d7g7&format=json</a></code>
+                <br>Returns complete response including metadata:
+                <pre style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 4px;">
+{
+    "success": true,
+    "legacy_url": "...",
+    "new_url": "...",
+    "title": "...",
+    "data": { ... }
+}</pre>
+            </li><br>
+            <li>Data-Only Response:
+                <code><a href="?code=d7g7&format=json&data_only=true">?code=d7g7&format=json&data_only=true</a></code>
+                <br>or
+                <code><a href="?url=https://api.ons.gov.uk/timeseries/d7g7/dataset/mm23/data&format=json&data_only=true">?url=https://api.ons.gov.uk/timeseries/d7g7/dataset/mm23/data&format=json&data_only=true</a></code>
+                <br>Returns only the data object from the ONS API
+            </li>
+        </ul>
+
+        <p>Parameters:</p>
+        <ul>
+            <li><code><a href="?code=d7g7">code</a></code>: CDID code (e.g., d7g7)</li>
+            <li><code><a href="?url=https://api.ons.gov.uk/timeseries/d7g7/dataset/mm23/data">url</a></code>: Legacy ONS API URL (alternative to code)</li>
+            <li><code><a href="?code=d7g7&format=json">format</a></code>: Set to 'json' for API response</li>
+            <li><code><a href="?code=d7g7&format=json&data_only=true">data_only</a></code>: Set to 'true' to return only the data object (works with both code and url)</li>
         </ul>
     </div>
 
@@ -312,7 +349,12 @@
                 
                 convertApi(code || url).then(response => {
                     if (params.get('format') === 'json') {
-                        document.body.innerHTML = `<pre>${JSON.stringify(response, null, 2)}</pre>`;
+                        // If data_only is true, return just the data
+                        if (params.get('data_only') === 'true') {
+                            document.body.innerHTML = `<pre>${JSON.stringify(response.data, null, 2)}</pre>`;
+                        } else {
+                            document.body.innerHTML = `<pre>${JSON.stringify(response, null, 2)}</pre>`;
+                        }
                     }
                 });
             }
