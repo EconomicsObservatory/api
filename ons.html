@@ -349,19 +349,19 @@
                 
                 convertApi(code || url).then(response => {
                     if (params.get('format') === 'json') {
-                        // Set proper JSON content type
-                        document.body.innerHTML = '';  // Clear existing content
-                        document.body.style.padding = '0';  // Remove padding
+                        // Clear existing content
+                        document.body.innerHTML = '';
+                        document.body.style.padding = '0';
                         
-                        // If data_only is true, return just the data
-                        if (params.get('data_only') === 'true') {
-                            document.write(JSON.stringify(response.data, null, 2));
-                        } else {
-                            document.write(JSON.stringify(response, null, 2));
-                        }
+                        // Create a Blob with the JSON data
+                        const jsonData = params.get('data_only') === 'true' ? response.data : response;
+                        const blob = new Blob([JSON.stringify(jsonData, null, 2)], {
+                            type: 'application/json'
+                        });
                         
-                        // Set content type header via meta tag
-                        document.head.innerHTML = '<meta http-equiv="Content-Type" content="application/json; charset=utf-8">';
+                        // Create object URL and redirect
+                        const url = URL.createObjectURL(blob);
+                        window.location.href = url;
                     }
                 });
             }
