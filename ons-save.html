@@ -356,14 +356,13 @@
                         // Get the data to return
                         const jsonData = params.get('data_only') === 'true' ? response.data : response;
                         
-                        // Clear head
-                        document.head.innerHTML = '';  
+                        // Set content type and return JSON
+                        document.head.innerHTML = '';  // Clear head
+                        document.body.style.whiteSpace = 'pre';  // Preserve formatting
+                        document.body.textContent = JSON.stringify(jsonData, null, 2);
                         
-                        // Write just the JSON in a pre tag
-                        document.write(`<pre>${JSON.stringify(jsonData, null, 2)}</pre>`);
-                        
-                        // Close the document
-                        document.close();
+                        // Force content type to application/json
+                        document.contentType = 'application/json';
                     }
                 });
             }
