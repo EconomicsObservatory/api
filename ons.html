@@ -263,10 +263,99 @@
         </ul>
     </div>
 
+    <div class="tutorial">
+        <h3>Vega Example</h3>
+        <p>Here's an example of how to create a Vega chart using the ONS API data with our CORS proxy:</p>
+        <pre style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 4px; cursor: pointer;" onclick="copyToClipboard(this)">
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": {
+    "url": "https://eco-cors-proxy.netlify.app/proxy?url=" + 
+          "https://economicsobservatory.github.io/api/ons.html" + 
+          "?code=l55o&format=json&data_only=true",
+    "format": {
+      "type": "json", 
+      "property": "months"
+    }
+  },
+  "mark": "line",
+  "encoding": {
+    "x": {"field": "date", "type": "temporal"},
+    "y": {"field": "value", "type": "quantitative"}
+  }
+}</pre>
+
+        <h4>Live Example (GDP Quarter on Quarter Growth):</h4>
+        <div id="vis"></div>
+        <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+        <script>
+            function copyToClipboard(element) {
+                // The actual spec to copy (with unbroken URL)
+                const spec = {
+                    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+                    "data": {
+                        "url": "https://eco-cors-proxy.netlify.app/proxy?url=https://economicsobservatory.github.io/api/ons.html?code=l55o&format=json&data_only=true",
+                        "format": {
+                            "type": "json",
+                            "property": "months"
+                        }
+                    },
+                    "mark": "line",
+                    "encoding": {
+                        "x": {"field": "date", "type": "temporal"},
+                        "y": {"field": "value", "type": "quantitative"}
+                    }
+                };
+
+                // Copy the stringified spec to clipboard
+                navigator.clipboard.writeText(JSON.stringify(spec, null, 2))
+                    .then(() => {
+                        // Visual feedback
+                        element.style.backgroundColor = "rgba(54, 183, 180, 0.1)"; // Subtle flash of turquoise
+                        setTimeout(() => {
+                            element.style.backgroundColor = "rgba(0, 0, 0, 0.2)";
+                        }, 200);
+                    });
+            }
+
+            // Render the chart
+            const chartSpec = {
+                "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+                "data": {
+                    "url": "https://eco-cors-proxy.netlify.app/proxy?url=https://economicsobservatory.github.io/api/ons.html?code=l55o&format=json&data_only=true",
+                    "format": {
+                        "type": "json",
+                        "property": "months"
+                    }
+                },
+                "mark": {"type": "line", "color": "#36B7B4"},
+                "encoding": {
+                    "x": {"field": "date", "type": "temporal"},
+                    "y": {"field": "value", "type": "quantitative"}
+                }
+            };
+            vegaEmbed('#vis', chartSpec);
+        </script>
+    </div>
+
+    <div class="tutorial">
+        <h3>Limitations</h3>
+        <ul>
+            <li>This page is hosted on GitHub Pages, so the API endpoint does not return the correct JSON headers.</li>
+            <li>However, if you have access to JavaScript you can still parse the JSON data from the HTML response.</li>
+            <li>This page is hosted on GitHub Pages, so it also does not support native CORS.</li>
+            <li>You can use <a href="https://economicsobservatory.github.io/cors-proxy/">our CORS Proxy</a> to bypass both of these limitations.</li>
+        </ul>
+    </div>
+
     <footer>
-        <p>Built by <a href="https://www.economicsobservatory.com">Economics Observatory</a> | 
-           <a href="https://github.com/EconomicsObservatory">GitHub</a> |
-           Data from <a href="https://www.ons.gov.uk/">ONS</a></p>
+        <p>Built by <a href="https://www.csaladen.es" target="_blank">Denes</a> for the <a href="https://www.economicsobservatory.com" target="_blank" rel="noopener noreferrer">Economics Observatory</a> | 
+           <a href="https://economicsobservatory.github.io/api/ons.html" target="_blank" rel="noopener noreferrer">ECO ONS API</a> |
+           <a href="https://economicsobservatory.github.io/cors-proxy/" target="_blank" rel="noopener noreferrer">ECO CORS Proxy</a> |
+           <a href="https://github.com/EconomicsObservatory" target="_blank" rel="noopener noreferrer">GitHub</a> |
+           Data from <a href="https://www.ons.gov.uk/" target="_blank" rel="noopener noreferrer">ONS</a></p>
     </footer>
 
     <script>
